@@ -1,88 +1,135 @@
 import 'package:flutter/material.dart';
+import 'package:futbolminigames/screens/difficulty_screen.dart'; // Importa la nueva pantalla.
 
-class HomeScreen extends StatefulWidget {  // Cambié a Stateful para animaciones.
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;  // Controla la animación.
-  late Animation<double> _gradientAnimation;  // Anima los stops del gradient.
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _gradientAnimation;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),  // Duración lenta de 10 segundos.
-    )..repeat(reverse: true);  // Repite y revierte para movimiento continuo.
+      duration: const Duration(seconds: 10),
+    )..repeat(reverse: true);
 
-    _gradientAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+    _gradientAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(_animationController);
   }
 
   @override
   void dispose() {
-    _animationController.dispose();  // Limpia la animación al cerrar.
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedBuilder(  // Reconstruye con animación.
+      body: AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
           return Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,  // Empieza arriba.
-                end: Alignment.bottomCenter,  // Termina abajo.
-                colors: const [Colors.red, Colors.blue],  // Colores rojo a azul como en PNG.
-                stops: [_gradientAnimation.value, 1.0 - _gradientAnimation.value],  // Anima el degradado.
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: const [Colors.red, Colors.blue],
+                stops: [
+                  _gradientAnimation.value,
+                  1.0 - _gradientAnimation.value,
+                ],
               ),
             ),
-            child: SafeArea(  // Evita notches del teléfono.
+            child: SafeArea(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,  // Espacia elementos: arriba, centro, abajo.
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Padding(  // Espacio arriba para título.
+                  const Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Text(
-                      'FMG\nFUTBOLMINIGAMES',  // Título con salto de línea.
+                      'FMG\nFUTBOLMINIGAMES',
                       style: TextStyle(
-                        fontFamily: 'Bangers',  // Font similar al PNG.
-                        fontSize: 32,  // Tamaño grande.
-                        fontWeight: FontWeight.bold,  // Negrita.
-                        color: Colors.green,  // Verde como en PNG.
+                        fontFamily: 'Bangers',
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
                       ),
-                      textAlign: TextAlign.center,  // Centrado.
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  Column(  // Grupo de botones centrales.
+                  Column(
                     children: [
-                      _buildButton('assets/images/x_icon.png', 'UN JUGADOR', Colors.blue),  // Botón 1 con asset.
-                      _buildButton('assets/images/square_icon.png', 'LOCAL', Colors.purple),  // Botón 2.
-                      _buildButton('assets/images/triangle_icon.png', 'MULTIJUGADOR', Colors.green),  // Botón 3.
-                      _buildButton('assets/images/circle_icon.png', 'COMPETITIVO', Colors.red),  // Botón 4.
+                      _buildButton(
+                        'assets/images/inicio/btn_X.png',
+                        'UN JUGADOR',
+                        Colors.blue,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DifficultyScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildButton(
+                        'assets/images/inicio/btn_cuadrado.png',
+                        'LOCAL',
+                        Colors.purple,
+                        () {
+                          Navigator.pushNamed(context, '/tictactoe');
+                        },
+                      ),
+                      _buildButton(
+                        'assets/images/inicio/btn_triangulo.png',
+                        'MULTIJUGADOR',
+                        Colors.green,
+                        () {
+                          // Lógica para multijugador (agrega después).
+                        },
+                      ),
+                      _buildButton(
+                        'assets/images/inicio/btn_circulo.png',
+                        'COMPETITIVO',
+                        Colors.red,
+                        () {
+                          // Lógica para competitivo (agrega después).
+                        },
+                      ),
                     ],
                   ),
-                  Padding(  // Espacio abajo para íconos.
+                  Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,  // Espaciados izquierda-derecha.
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
-                          icon: Image.asset('assets/images/trophies.png', width: 50),  // Asset de trofeos.
+                          icon: Image.asset(
+                            'assets/images/inicio/btn_Leaderboard.png',
+                            width: 50,
+                          ),
                           onPressed: () {
-                            // Lógica para leaderboard (agrega después, ej: Navigator.push).
+                            // Lógica para leaderboard (pendiente).
                           },
                         ),
                         IconButton(
-                          icon: Image.asset('assets/images/gear.png', width: 50),  // Asset de engranaje.
+                          icon: Image.asset(
+                            'assets/images/inicio/btn_Config.png',
+                            width: 50,
+                          ),
                           onPressed: () {
-                            // Lógica para config (agrega después).
+                            // Lógica para config (pendiente).
                           },
                         ),
                       ],
@@ -97,30 +144,37 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildButton(String iconPath, String text, Color iconColor) {  // Función para crear botones repetidos.
+  Widget _buildButton(
+    String iconPath,
+    String text,
+    Color iconColor,
+    VoidCallback onPressed,
+  ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),  // Espacio alrededor.
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ElevatedButton(
         onPressed: () {
-          // Lógica al clic (agrega después, ej: navegar a otra pantalla).
+          // Lógica al clic (agrega después).
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black,  // Fondo negro como en PNG.
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),  // Redondeado.
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),  // Tamaño grande.
+          backgroundColor: Colors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,  // Ícono izquierda, texto derecha.
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Image.asset(iconPath, width: 30, color: iconColor),  // Asset con color.
-            const SizedBox(width: 16),  // Espacio entre ícono y texto.
+            Image.asset(iconPath, width: 30, color: iconColor),
+            const SizedBox(width: 16),
             Text(
               text,
               style: const TextStyle(
-                fontFamily: 'Bangers',  // Mismo font.
-                fontSize: 24,  // Tamaño para texto de botones.
-                color: Colors.white,  // Blanco.
-                fontWeight: FontWeight.bold,  // Negrita.
+                fontFamily: 'Bangers',
+                fontSize: 24,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
