@@ -1,61 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:futbolminigames/screens/minigames_screen.dart'; // Importa la siguiente pantalla.
+import 'package:futbolminigames/screens/minigames_screen.dart';
 
-class DifficultyScreen extends StatefulWidget {
+class DifficultyScreen extends StatelessWidget {
   const DifficultyScreen({super.key});
-
-  @override
-  _DifficultyScreenState createState() => _DifficultyScreenState();
-}
-
-class _DifficultyScreenState extends State<DifficultyScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _gradientAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 10),
-    )..repeat(reverse: true);
-
-    _gradientAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_animationController);
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF000033),
       body: Stack(
         children: [
-          AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: const [Colors.red, Colors.blue],
-                    stops: [
-                      _gradientAnimation.value,
-                      1.0 - _gradientAnimation.value,
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
           SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -64,28 +18,79 @@ class _DifficultyScreenState extends State<DifficultyScreen>
                   color: Colors.black,
                   padding: const EdgeInsets.all(16.0),
                   width: double.infinity,
-                  child: const Text(
+                  child: Text(
                     'DIFICULTAD BOT',
                     style: TextStyle(
                       fontFamily: 'Bangers',
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                      foreground: Paint()
+                        ..shader =
+                            LinearGradient(
+                              colors: <Color>[
+                                Colors.green[700]!,
+                                Colors.green[900]!,
+                              ],
+                            ).createShader(
+                              const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
+                            ),
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 Column(
                   children: [
-                    _buildDifficultyButton('MUY FÁCIL', Colors.green[700]!),
-                    _buildDifficultyButton('FÁCIL', Colors.green[500]!),
-                    _buildDifficultyButton('NORMAL', Colors.yellow[600]!),
-                    _buildDifficultyButton('DIFÍCIL', Colors.orange[600]!),
-                    _buildDifficultyButton('EXPERTO', Colors.orange[800]!),
-                    _buildDifficultyButton('IMPOSIBLE', Colors.red[700]!),
+                    _buildDifficultyButton('MUY FÁCIL', Colors.green[700]!, () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MinigamesScreen(),
+                        ),
+                      );
+                    }),
+                    _buildDifficultyButton('FÁCIL', Colors.green[500]!, () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MinigamesScreen(),
+                        ),
+                      );
+                    }),
+                    _buildDifficultyButton('NORMAL', Colors.yellow[600]!, () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MinigamesScreen(),
+                        ),
+                      );
+                    }),
+                    _buildDifficultyButton('DIFÍCIL', Colors.orange[600]!, () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MinigamesScreen(),
+                        ),
+                      );
+                    }),
+                    _buildDifficultyButton('EXPERTO', Colors.orange[800]!, () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MinigamesScreen(),
+                        ),
+                      );
+                    }),
+                    _buildDifficultyButton('IMPOSIBLE', Colors.red[700]!, () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MinigamesScreen(),
+                        ),
+                      );
+                    }),
                   ],
                 ),
-                const SizedBox(height: 50), // Espacio para flecha abajo.
+                const SizedBox(height: 50),
               ],
             ),
           ),
@@ -99,7 +104,7 @@ class _DifficultyScreenState extends State<DifficultyScreen>
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pop(context); // Vuelve a la anterior (inicio).
+                Navigator.pop(context);
               },
             ),
           ),
@@ -108,16 +113,15 @@ class _DifficultyScreenState extends State<DifficultyScreen>
     );
   }
 
-  Widget _buildDifficultyButton(String text, Color color) {
+  Widget _buildDifficultyButton(
+    String text,
+    Color color,
+    VoidCallback onPressed,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MinigamesScreen()),
-          );
-        },
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           shape: RoundedRectangleBorder(

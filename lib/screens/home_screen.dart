@@ -1,145 +1,93 @@
 import 'package:flutter/material.dart';
-import 'package:futbolminigames/screens/difficulty_screen.dart'; // Importa la nueva pantalla.
+import 'package:futbolminigames/screens/difficulty_screen.dart'; // Importa Difficulty.
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
+  // Cambié a Stateless (no animación).
   const HomeScreen({super.key});
-
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _gradientAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 10),
-    )..repeat(reverse: true);
-
-    _gradientAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_animationController);
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, child) {
-          return Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: const [Colors.red, Colors.blue],
-                stops: [
-                  _gradientAnimation.value,
-                  1.0 - _gradientAnimation.value,
-                ],
+      backgroundColor: const Color(0xFF000033), // Fondo azul oscuro fijo.
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'FMG\nFUTBOLMINIGAMES',
+                style: TextStyle(
+                  fontFamily: 'Bangers',
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  foreground: Paint()
+                    ..shader = LinearGradient(
+                      colors: <Color>[Colors.green[700]!, Colors.green[900]!],
+                    ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
-            child: SafeArea(
-              child: Column(
+            Column(
+              children: [
+                _buildButton(
+                  'assets/images/inicio/btn_X.png',
+                  'UN JUGADOR',
+                  Colors.blue,
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DifficultyScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _buildButton(
+                  'assets/images/inicio/btn_cuadrado.png',
+                  'LOCAL',
+                  Colors.purple,
+                  null,
+                ),
+                _buildButton(
+                  'assets/images/inicio/btn_triangulo.png',
+                  'MULTIJUGADOR',
+                  Colors.green,
+                  null,
+                ),
+                _buildButton(
+                  'assets/images/inicio/btn_circulo.png',
+                  'COMPETITIVO',
+                  Colors.red,
+                  null,
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      'FMG\nFUTBOLMINIGAMES',
-                      style: TextStyle(
-                        fontFamily: 'Bangers',
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                      textAlign: TextAlign.center,
+                  IconButton(
+                    icon: Image.asset(
+                      'assets/images/inicio/btn_Leaderboard.png',
+                      width: 50,
                     ),
+                    onPressed: () {},
                   ),
-                  Column(
-                    children: [
-                      _buildButton(
-                        'assets/images/inicio/btn_X.png',
-                        'UN JUGADOR',
-                        Colors.blue,
-                        () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const DifficultyScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildButton(
-                        'assets/images/inicio/btn_cuadrado.png',
-                        'LOCAL',
-                        Colors.purple,
-                        () {
-                          Navigator.pushNamed(context, '/tictactoe');
-                        },
-                      ),
-                      _buildButton(
-                        'assets/images/inicio/btn_triangulo.png',
-                        'MULTIJUGADOR',
-                        Colors.green,
-                        () {
-                          // Lógica para multijugador (agrega después).
-                        },
-                      ),
-                      _buildButton(
-                        'assets/images/inicio/btn_circulo.png',
-                        'COMPETITIVO',
-                        Colors.red,
-                        () {
-                          // Lógica para competitivo (agrega después).
-                        },
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/images/inicio/btn_Leaderboard.png',
-                            width: 50,
-                          ),
-                          onPressed: () {
-                            // Lógica para leaderboard (pendiente).
-                          },
-                        ),
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/images/inicio/btn_Config.png',
-                            width: 50,
-                          ),
-                          onPressed: () {
-                            // Lógica para config (pendiente).
-                          },
-                        ),
-                      ],
+                  IconButton(
+                    icon: Image.asset(
+                      'assets/images/inicio/btn_Config.png',
+                      width: 50,
                     ),
+                    onPressed: () {},
                   ),
                 ],
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
@@ -148,14 +96,12 @@ class _HomeScreenState extends State<HomeScreen>
     String iconPath,
     String text,
     Color iconColor,
-    VoidCallback onPressed,
+    VoidCallback? onPressed,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ElevatedButton(
-        onPressed: () {
-          // Lógica al clic (agrega después).
-        },
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.black,
           shape: RoundedRectangleBorder(
@@ -166,7 +112,13 @@ class _HomeScreenState extends State<HomeScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Image.asset(iconPath, width: 30, color: iconColor),
+            Image.asset(
+              iconPath,
+              width: 30,
+              color: iconColor,
+              errorBuilder: (context, error, stack) =>
+                  const Icon(Icons.error, color: Colors.red),
+            ),
             const SizedBox(width: 16),
             Text(
               text,

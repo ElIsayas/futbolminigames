@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:futbolminigames/screens/home_screen.dart';
-import 'screens/tictactoe_screen.dart';
+import 'package:futbolminigames/screens/difficulty_screen.dart';
+import 'package:futbolminigames/screens/minigames_screen.dart';
+import 'package:futbolminigames/screens/tictactoe_screen.dart';
 
 void main() {
   runApp(const FMGApp());
@@ -17,6 +19,8 @@ class FMGApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
+        '/difficulty': (context) => const DifficultyScreen(),
+        '/minigames': (context) => const MinigamesScreen(),
         '/tictactoe': (context) => const TicTacToeScreen(),
       },
     );

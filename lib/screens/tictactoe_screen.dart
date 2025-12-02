@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Para llamar a la API.
-import 'dart:async'; // Para el Timer (reloj).
-import 'dart:convert'; // Para procesar datos JSON de la API.
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
 
 class TicTacToeScreen extends StatefulWidget {
   const TicTacToeScreen({super.key});
@@ -11,57 +11,62 @@ class TicTacToeScreen extends StatefulWidget {
 }
 
 class _TicTacToeScreenState extends State<TicTacToeScreen> {
-  int _timeRemaining = 30; // Timer inicial de 30 segundos.
-  Timer? _timer; // El reloj que cuenta segundos.
-  Color _timerColor = Colors.green; // Color inicial del timer.
-  String _searchText = ''; // Texto que escribe el usuario en el buscador.
-  List<Map<String, dynamic>> _playerData =
-      []; // Lista de jugadores de la API (datos reales).
-  List<String> _suggestions = []; // Sugerencias para autocompletado.
+  int _timeRemaining = 60; // Empieza en 60 seg, como tu mockup.
+  Timer? _timer;
+  Color _timerColor = Colors.green;
+  String _searchText = '';
+  List<Map<String, dynamic>> _playerData = [];
+  List<String> _suggestions = [];
 
-  // API key (tuya, segura para local).
+  // Tu API key.
   static const String apiKey = 'b91668911062c7df1ef42b20b0bf4125';
 
   @override
   void initState() {
     super.initState();
-    _startTimer(); // Inicia el timer.
-    _fetchPlayers(
-      '',
-    ); // Fetch inicial de jugadores (query vacío para todos; ajusta si quieres específico).
+    _startTimer();
+    _fetchPlayers(''); // Carga jugadores famosos al inicio (toda historia).
   }
 
   @override
   void dispose() {
-    _timer?.cancel(); // Para el timer al salir de la pantalla.
+    _timer?.cancel();
     super.dispose();
   }
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return; // Evita errores si pantalla cierra.
       setState(() {
         if (_timeRemaining > 0) {
           _timeRemaining--;
-          if (_timeRemaining > 15) {
-            _timerColor = Colors.green; // 30-15: verde.
-          } else if (_timeRemaining > 10) {
-            _timerColor = Colors.yellow; // 15-10: amarillo.
-          } else if (_timeRemaining > 5) {
-            _timerColor = Colors.orange; // 10-5: naranja.
-          } else {
-            _timerColor = Colors.red; // 5-0: rojo.
-          }
+          if (_timeRemaining > 30)
+            _timerColor = Colors.green;
+          else if (_timeRemaining > 20)
+            _timerColor = Colors.yellow;
+          else if (_timeRemaining > 10)
+            _timerColor = Colors.orange;
+          else
+            _timerColor = Colors.red;
         } else {
-          timer.cancel(); // Para al llegar a 0.
-          // Aquí puedes agregar lógica futura, como "tiempo acabado".
+          timer.cancel();
         }
       });
     });
   }
 
+  void _pauseGame() {
+    _timer?.cancel();
+  }
+
+  void _resumeGame() {
+    _startTimer();
+  }
+
+  // BUSCA JUGADORES DE TODA LA HISTORIA (sin año/liga fija).
   Future<void> _fetchPlayers(String query) async {
     final url = query.isEmpty
-        ? 'https://v3.football.api-sports.io/players?league=39&season=2023' // Ejemplo: Premier League 2023 (cambia league/season si quieres otros).
+        ? 'https://v3.football.api-sports.io/players?search=ronaldo,messi,maradona,pele,beckham,cruyff,zidane,neymar,mbappe,haaland'
         : 'https://v3.football.api-sports.io/players?search=$query';
     final response = await http.get(
       Uri.parse(url),
@@ -70,18 +75,14 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
-        _playerData = List<Map<String, dynamic>>.from(
-          data['response'],
-        ); // Guarda jugadores reales.
+        _playerData = List<Map<String, dynamic>>.from(data['response']);
         _suggestions = _playerData
             .map(
               (player) =>
-                  '${player['player']['name']} - ${player['statistics'][0]['games']['position']} ( ${player['player']['birth']['date']})',
+                  '${player['player']['name']} - ${player['statistics'][0]['games']['position']} (${player['player']['birth']['date']})',
             )
             .toList();
       });
-    } else {
-      // Si error (ej: límite API), muestra mensaje (pendiente: agrega SnackBar).
     }
   }
 
@@ -89,28 +90,117 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     setState(() {
       _searchText = value;
     });
-    _fetchPlayers(value); // Llama API para filtrar en tiempo real.
+    _fetchPlayers(value);
+  }
+
+  void _showPauseDialog() {
+    _pauseGame(); // Pausa timer.
+    showDialog(
+      context: context,
+      barrierDismissible: false, // No cierra tocando fuera.
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(
+            0xFF000033,
+          ).withOpacity(0.95), // Fondo azul semi-transparente.
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'PAUSE',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Bangers',
+              fontSize: 40,
+              color: Colors.green,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _pauseButton('REANUDAR', Colors.green, () {
+                Navigator.of(context).pop(); // Cierra dialog.
+                _resumeGame(); // Reanuda timer.
+              }),
+              const SizedBox(height: 10),
+              _pauseButton('MINIJUEGOS', Colors.blue, () {
+                Navigator.of(context).pop(); // Cierra dialog.
+                Navigator.popUntil(
+                  context,
+                  ModalRoute.withName('/minigames'),
+                ); // Vuelve a Minijuegos (siguiendo consejo VS Code).
+              }),
+              const SizedBox(height: 10),
+              _pauseButton('INICIO', Colors.red, () {
+                Navigator.of(context).pop(); // Cierra dialog.
+                Navigator.popUntil(
+                  context,
+                  (route) => route.isFirst,
+                ); // Vuelve a Inicio (siguiendo consejo VS Code).
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _pauseButton(String text, Color color, VoidCallback onTap) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontFamily: 'Bangers',
+            fontSize: 24,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(
-        0xFF000033,
-      ), // Fondo azul oscuro como en mockup.
+      backgroundColor: const Color(0xFF000033),
       body: SafeArea(
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'TicTacToe',
-                style: TextStyle(
-                  fontFamily: 'Bangers',
-                  fontSize: 32,
-                  color: Colors.purple,
-                  fontWeight: FontWeight.bold,
-                ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.pause_circle_outline,
+                      color: Colors.green,
+                      size: 30,
+                    ),
+                    onPressed:
+                        _showPauseDialog, // Abre la ventana pequeña de pausa.
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'TICTACTOE',
+                    style: TextStyle(
+                      fontFamily: 'Bangers',
+                      fontSize: 32,
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
             Row(
@@ -142,7 +232,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: LinearProgressIndicator(
-                value: _timeRemaining / 30,
+                value: _timeRemaining / 60,
                 backgroundColor: Colors.grey,
                 color: _timerColor,
                 minHeight: 10,
@@ -179,7 +269,6 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                 itemCount: 16,
                 itemBuilder: (context, index) {
                   if (index == 0) {
-                    // Esquina superior izquierda: Icono FMG.
                     return Card(
                       color: Colors.grey[800],
                       child: Center(
@@ -190,7 +279,6 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                       ),
                     );
                   } else if (index < 4 && _playerData.isNotEmpty) {
-                    // Fila superior: Escudos de clubes (de API).
                     final clubLogo =
                         _playerData[index - 1]['statistics'][0]['team']['logo'];
                     return Card(
@@ -198,11 +286,10 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                       child: Center(child: Image.network(clubLogo, width: 50)),
                     );
                   } else if (index % 4 == 0 && _playerData.isNotEmpty) {
-                    // Columna izquierda: Banderas (FlagCDN con nacionalidad ISO).
                     final nationality =
                         _playerData[(index ~/ 4) - 1]['player']['nationality']
                             .toLowerCase()
-                            .substring(0, 2); // Ej: 'ar' para Argentina.
+                            .substring(0, 2);
                     return Card(
                       color: Colors.grey[800],
                       child: Center(
@@ -213,16 +300,12 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                       ),
                     );
                   } else if (_playerData.isNotEmpty) {
-                    // Otras celdas: Nombres de jugadores, posiciones, etc.
-                    final player =
-                        _playerData[(index % 4) +
-                            (index ~/ 4) -
-                            2]; // Ajusta índice para datos.
+                    final player = _playerData[(index % 4) + (index ~/ 4) - 2];
                     return Card(
                       color: Colors.grey[800],
                       child: Center(
                         child: Text(
-                          '${player['player']['name']}\n ${player['statistics'][0]['games']['position']}',
+                          '${player['player']['name']}\n${player['statistics'][0]['games']['position']}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,

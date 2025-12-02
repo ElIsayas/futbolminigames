@@ -66,6 +66,7 @@ flutter:
   - assets/images/inicio/btn_circulo.png
   - assets/images/inicio/btn_Config.png
   - assets/images/inicio/btn_Leaderboard.png
+  - assets/images/inicio/btn_Pause.png
 
   fonts:
     - family: Bangers
